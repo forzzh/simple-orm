@@ -23,12 +23,12 @@ public class TableContext {
 	/**
 	 * 表名为key，表信息对象为value
 	 */
-	public static  Map<String,TableInfo>  tables = new HashMap<String,TableInfo>();
+	public static  Map<String,TableInfo>  tables = new HashMap<String, TableInfo>();
 	
 	/**
 	 * 将po的class对象和表信息对象关联起来，便于重用！
 	 */
-	public static  Map<Class,TableInfo>  poClassTableMap = new HashMap<Class,TableInfo>();
+	public static  Map<Class<?>, TableInfo>  poClassTableMap = new HashMap<Class<?>, TableInfo>();
 	
 	private TableContext(){}
 	
@@ -82,8 +82,9 @@ public class TableContext {
 	 */
 	public static void updateJavaPOFile(){
 		Map<String,TableInfo> map = TableContext.tables;
-		for(TableInfo t:map.values()){
-			JavaFileUtils.createJavaPOFile(t,new MySqlTypeConvertor());
+		for(TableInfo t:map.values()) {
+			//可以动态根据配置的数据库换成不同的TypeConvertor实现
+			JavaFileUtils.createJavaPOFile(t, new MySqlTypeConvertor());
 		}	
 	}
 	
@@ -92,9 +93,11 @@ public class TableContext {
 	 */
 	public static void loadPOTables(){
 		
-		for(TableInfo tableInfo:tables.values()){
+		for(TableInfo tableInfo : tables.values()){
 			try {
-				Class c = Class.forName(DBManager.getConf().getPoPackage()
+				
+				// TODO 第一次加载会出问题，怎么样放入虚拟机中
+				Class<?> c = Class.forName(DBManager.getConf().getPoPackage()
 						+"."+StringUtils.firstChar2UpperCase(tableInfo.getTname()));
 				poClassTableMap.put(c, tableInfo);
 			} catch (ClassNotFoundException e) {

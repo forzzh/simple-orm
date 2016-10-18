@@ -16,7 +16,7 @@ public class TableInfo {
 	/**
 	 * 所有字段的信息
 	 */
-	private Map<String,ColumnInfo> columns;
+	private Map<String, ColumnInfo> columns;
 	
 	/**
 	 * 唯一主键(目前我们只能处理表中有且只有一个主键的情况)

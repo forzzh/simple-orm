@@ -12,6 +12,8 @@ import com.orm.bean.ColumnInfo;
 import com.orm.bean.JavaFieldGetSet;
 import com.orm.bean.TableInfo;
 import com.orm.core.DBManager;
+import com.orm.core.MySqlTypeConvertor;
+import com.orm.core.TableContext;
 import com.orm.core.TypeConvertor;
 
 
@@ -64,7 +66,7 @@ public class JavaFileUtils {
 		Map<String,ColumnInfo> columns = tableInfo.getColumns();
 		List<JavaFieldGetSet> javaFields = new ArrayList<JavaFieldGetSet>();
 
-		for(ColumnInfo c:columns.values()){
+		for(ColumnInfo c : columns.values()) {
 			javaFields.add(createFieldGetSetSRC(c,convertor));
 		}
 		
@@ -98,13 +100,22 @@ public class JavaFileUtils {
 	}
 	
 	
-	public static void createJavaPOFile(TableInfo tableInfo,TypeConvertor convertor){
-		String src = createJavaSrc(tableInfo,convertor);
+	public static void createJavaPOFile(TableInfo tableInfo, TypeConvertor convertor){
+		String src = createJavaSrc(tableInfo, convertor);
 		
 		String srcPath = DBManager.getConf().getSrcPath()+"\\";
 		String packagePath = DBManager.getConf().getPoPackage().replaceAll("\\.", "/");
 		
-		File f = new File(srcPath+packagePath);
+		File f = new File(srcPath + packagePath);
+		
+		String path = f.getAbsoluteFile()+"/"+StringUtils.firstChar2UpperCase(tableInfo.getTname())+".java";
+		
+		File targetFile = new File(path);
+		
+		//如果已经存在就不在创建
+		if (targetFile.exists()) {
+			return;
+		}
 		
 		if(!f.exists()){  //如果指定目录不存在，则帮助用户建立
 			f.mkdirs();
@@ -113,7 +124,9 @@ public class JavaFileUtils {
 		BufferedWriter bw = null;
 		
 		try {
-			bw = new BufferedWriter(new FileWriter(f.getAbsoluteFile()+"/"+StringUtils.firstChar2UpperCase(tableInfo.getTname())+".java"));
+			
+			
+			bw = new BufferedWriter(new FileWriter(targetFile));
 			bw.write(src);
 			System.out.println("建立表"+tableInfo.getTname()+
 					"对应的java类："+StringUtils.firstChar2UpperCase(tableInfo.getTname())+".java");
@@ -137,7 +150,8 @@ public class JavaFileUtils {
 //		JavaFieldGetSet f = createFieldGetSetSRC(ci,new MySqlTypeConvertor());
 //		System.out.println(f);
 		
-//		Map<String,TableInfo> map = TableContext.tables;
+		Map<String, TableInfo> map = TableContext.tables;
+		System.out.println(map);
 //		for(TableInfo t:map.values()){
 //			createJavaPOFile(t,new MySqlTypeConvertor());
 //		}
