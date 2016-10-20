@@ -18,8 +18,8 @@ public class ReflectUtils {
 	public static Object invokeGet(String fieldName,Object obj){
 		try {
 			Class<?> c = obj.getClass();
-			Method m = c.getDeclaredMethod("get"+StringUtils.firstChar2UpperCase(fieldName), null);
-			return m.invoke(obj, null);
+			Method m = c.getDeclaredMethod("get"+StringUtils.firstChar2UpperCase(fieldName));
+			return m.invoke(obj);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;

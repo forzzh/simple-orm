@@ -21,50 +21,45 @@ import com.orm.utils.ReflectUtils;
  */
 public class MySqlQuery implements Query {
 	
-	public static void testDML(){
-//		Emp e = new Emp();
-//		e.setEmpname("lily");
-//		e.setBirthday(new java.sql.Date(System.currentTimeMillis()));
-//		e.setAge(30);
-//		e.setSalary(3000.8);
-//		e.setId(1);
-//		new MySqlQuery().delete(e);
-//		new MySqlQuery().insert(e);
-//		new MySqlQuery().update(e,new String[]{"empname","age","salary"});
-	}
-	
 	public static void testDelete(){
 		User user = new User();
 		user.setId(2);
 		new MySqlQuery().delete(user);
 	}
 	
+	public static void testUpdate(){
+		User user = new User();
+		user.setId(2);
+		user.setAge(14);
+		new MySqlQuery().update(user, new String[]{"age"});
+	}
+	
+	public static void testInsert(){
+		User user = new User();
+		user.setId(2);
+		user.setAge(18);
+		user.setName("Lily");
+		new MySqlQuery().insert(user);
+	}
+	
 	public static void testQueryRows(){
-//		List<Emp> list = new MySqlQuery().queryRows("select id,empname,age from emp where age>? and salary<?",
-//				Emp.class, new Object[]{10,5000});
-//		
-//		for(Emp e:list){
-//			System.out.println(e.getEmpname());
-//		}
-//		
-//		String sql2 = "select e.id,e.empname,salary+bonus 'xinshui',age,d.dname 'deptName',d.address 'deptAddr' from emp e "
-//+"join dept d on e.deptId=d.id ";
-//		List<EmpVO> list2 = new MySqlQuery().queryRows(sql2,
-//				EmpVO.class, null);
-//		
-//		for(EmpVO e:list2){
-//			System.out.println(e.getEmpname()+"-"+e.getDeptAddr()+"-"+e.getXinshui());
-//		}
+		List<User> users = new MySqlQuery().queryRows("select id, age from user",
+				User.class, null);
+		for(User user : users){
+			System.out.println(user.getAge());
+		}
 		
 	}
 	
 	
 	public static void main(String[] args) {
-//		Number obj = (Number)new MySqlQuery().queryValue("select count(*) from emp where salary>?",new Object[]{1000});
-//		Number obj = new MySqlQuery().queryNumber("select count(*) from emp where salary>?",new Object[]{1000});
-//		System.out.println(obj.doubleValue());
 		
-		testDelete();
+//		testDelete();
+		
+//		testInsert();
+		testUpdate();
+		
+//		testQueryRows();
 	}
 	
 	@Override
@@ -106,7 +101,7 @@ public class MySqlQuery implements Query {
 			count  = ps.executeUpdate();
 		} catch (Exception e) {
 			e.printStackTrace();
-		}finally{
+		} finally {
 			DBManager.close(ps, conn);
 		}
 		
@@ -116,12 +111,14 @@ public class MySqlQuery implements Query {
 	@Override
 	public void insert(Object obj) {
 		//obj-->表中。             insert into 表名  (id,uname,pwd) values (?,?,?)
-		Class c = obj.getClass();
+		Class<?> c = obj.getClass();
 		List<Object> params = new ArrayList<Object>();   //存储sql的参数对象
 		TableInfo tableInfo = TableContext.poClassTableMap.get(c);
 		StringBuilder sql  = new StringBuilder("insert into "+tableInfo.getTname()+" (");
 		int countNotNullField = 0;   //计算不为null的属性值
 		Field[] fs = c.getDeclaredFields();
+		
+		//目前只有实体类名和表名一致才行
 		for(Field f:fs){
 			String fieldName = f.getName();
 			Object fieldValue = ReflectUtils.invokeGet(fieldName, obj);
@@ -149,7 +146,7 @@ public class MySqlQuery implements Query {
 	}
 
 	@Override
-	public List queryRows(String sql, Class clazz, Object[] params) {
+	public List queryRows(String sql, Class<?> clazz, Object[] params) {
 
 		Connection conn = DBManager.getConn();
 		List list = null;    //存储查询结果的容器
@@ -183,7 +180,7 @@ public class MySqlQuery implements Query {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		}finally{
+		} finally {
 			DBManager.close(ps, conn);
 		}
 	
@@ -191,7 +188,7 @@ public class MySqlQuery implements Query {
 	}
 
 	@Override
-	public Object queryUniqueRow(String sql, Class clazz, Object[] params) {
+	public Object queryUniqueRow(String sql, Class<?> clazz, Object[] params) {
 		List list = queryRows(sql, clazz, params);
 		return (list==null&&list.size()>0)?null:list.get(0);
 	}
@@ -224,7 +221,7 @@ public class MySqlQuery implements Query {
 	@Override
 	public int update(Object obj, String[] fieldNames) {
 		//obj{"uanme","pwd"}-->update 表名  set uname=?,pwd=? where id=?
-		Class c = obj.getClass();
+		Class<?> c = obj.getClass();
 		List<Object> params = new ArrayList<Object>();   //存储sql的参数对象
 		TableInfo tableInfo = TableContext.poClassTableMap.get(c);
 		ColumnInfo  priKey = tableInfo.getOnlyPriKey();   //获得唯一的主键
