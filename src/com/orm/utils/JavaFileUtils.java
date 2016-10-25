@@ -12,7 +12,6 @@ import com.orm.bean.ColumnInfo;
 import com.orm.bean.JavaFieldGetSet;
 import com.orm.bean.TableInfo;
 import com.orm.core.DBManager;
-import com.orm.core.MySqlTypeConvertor;
 import com.orm.core.TableContext;
 import com.orm.core.TypeConvertor;
 
