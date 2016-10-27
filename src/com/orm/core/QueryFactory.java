@@ -7,7 +7,7 @@ public class QueryFactory {
 		
 		try {
 			String db = DBManager.getConf().getUsingDB();
-			Class c = Class.forName(getClassNameByDB(db));  ////加载指定的query类
+			Class<?> c = Class.forName(getClassNameByDB(db));  ////加载指定的query类
 			prototypeObj = (Query) c.newInstance();
 		} catch (Exception e) {
 			e.printStackTrace();

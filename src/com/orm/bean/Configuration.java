@@ -34,6 +34,16 @@ public class Configuration {
 	 */
 	private String poPackage;
 	
+	/**
+	 * 最小连接
+	 */
+	private int poolMinSize;
+	
+	/**
+	 * 最大连接
+	 */
+	private int poolMaxSize;
+	
 	
 	public Configuration() {
 	}
@@ -93,8 +103,24 @@ public class Configuration {
 	}
 	public void setPoPackage(String poPackage) {
 		this.poPackage = poPackage;
-	} 
-	
+	}
+
+	public int getPoolMinSize() {
+		return poolMinSize;
+	}
+
+	public void setPoolMinSize(int poolMinSize) {
+		this.poolMinSize = poolMinSize;
+	}
+
+	public int getPoolMaxSize() {
+		return poolMaxSize;
+	}
+
+	public void setPoolMaxSize(int poolMaxSize) {
+		this.poolMaxSize = poolMaxSize;
+	}
+
 	
 	
 

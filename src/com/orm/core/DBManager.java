@@ -9,6 +9,7 @@ import java.sql.Statement;
 import java.util.Properties;
 
 import com.orm.bean.Configuration;
+import com.orm.pool.DBConnPool;
 
 /**
  * 
@@ -18,6 +19,11 @@ import com.orm.bean.Configuration;
  */
 public class DBManager {
 	private static Configuration conf;
+	
+	/**
+	 * 连接池对象
+	 */
+	private static DBConnPool pool;
 
 	static { // 静态代码块
 		Properties pros = new Properties();
@@ -36,9 +42,18 @@ public class DBManager {
 		conf.setUrl(pros.getProperty("url"));
 		conf.setUser(pros.getProperty("user"));
 		conf.setUsingDB(pros.getProperty("usingDB"));
+		conf.setPoolMaxSize(Integer.parseInt(pros.getProperty("poolMaxSize")));
+		conf.setPoolMinSize(Integer.parseInt(pros.getProperty("poolMinSize")));
 	}
 
 	public static Connection getConn() {
+		if(pool==null){
+			pool = new DBConnPool();
+		}
+		return pool.getConnection();
+	}
+	
+	public static Connection createConn() {
 		try {
 			Class.forName(conf.getDriver());
 			return DriverManager.getConnection(conf.getUrl(), conf.getUser(),
@@ -81,13 +96,14 @@ public class DBManager {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		try {
-			if (conn != null) {
-				conn.close();
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			if (conn != null) {
+//				conn.close();
+//			}
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		}
+		pool.close(conn);
 	}
 
 	public static void close(Connection conn) {
